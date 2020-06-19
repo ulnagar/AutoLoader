@@ -1,0 +1,24 @@
+{
+  "name": "autoloader",
+  "version": "1.0.0",
+  "description": "AutoLoader is intended to be a project that uses the Google YouTube API to search for videos using a particular keyword. It then compares the videos found to the videos in a playlist, and adds them to the playlist if they do not already exist.",
+  "main": "index.js",
+  "dependencies": {
+    "google-auth-library": "^6.0.2",
+    "googleapis": "^52.1.0"
+  },
+  "devDependencies": {},
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ulnagar/AutoLoader.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/ulnagar/AutoLoader/issues"
+  },
+  "homepage": "https://github.com/ulnagar/AutoLoader#readme"
+}
