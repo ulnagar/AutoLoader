@@ -11,6 +11,8 @@ var TOKEN_PATH = TOKEN_DIR + '/youtube-nodejs-quickstart.json';
 var PLAYLISTID = 'PLebMY5JwLV0Tmi6BjfGz7_PcdaX5gom4o';
 var SERVICE = google.youtube('v3');
 
+var PLAYLISTITEMS = [];
+
 fs.readFile('client_secret.json', function processClientSecrets(err, content) {
     if (err) {
         console.log('Error loading client secret file: ' + err);
@@ -142,20 +144,24 @@ async function listVideos(auth) {
         } else {
             await addVideoToPlaylist(auth, element.id);
         }
+
+        console.log('');
+        console.log('');
     };
 }
 
 async function isVideoAlreadyInPlaylist(auth, video) {
-    var res = await SERVICE.playlistItems.list({
-        auth: auth,
-        part: 'id',
-        playlistId: PLAYLISTID
-    });
+    if (PLAYLISTITEMS.length == 0){
+        var res = await SERVICE.playlistItems.list({
+            auth: auth,
+            part: 'id,snippet',
+            playlistId: PLAYLISTID
+        });
 
-    var items = res.data.items;
-    //This step may not be working.
-    // This compares the playlistitemid with the videoid. Need to make sure I get the videoid from the items array.
-    if (items.some(item => item.id == video.videoId)){
+        PLAYLISTITEMS = res.data.items;
+    }
+
+    if (items.some(item => item.snippet.resourceId.videoId == video.videoId)){
         console.log('Video is already in playlist');
         return true;
     };
