@@ -77,18 +77,31 @@ function storeToken(token) {
     });
 }
 
-async function listVideos(auth) {
-    PLAYLISTITEMS = [];
+async function listVideos(auth, pageToken) {
+    var nextPageToken = '';
+    var recurse = true;
 
-    var res = await SERVICE.search.list({
+    var query = {
         auth: auth,
+        order: 'date',
         part: 'id,snippet',
         q: 'Hermitcraft 7|VII',
+        type: 'video',
         maxResults: 20
-    });
+    };
 
+    if (pageToken){
+        PLAYLISTITEMS = [];
+        query.pageToken = pageToken;
+    }
+
+    var res = await SERVICE.search.list(query);
+
+    nextPageToken = res.data.nextPageToken;
     var videos = res.data.items;
     videos.sort((a,b) => (a.snippet.publishedAt < b.snippet.publishedAt) ? 1 : -1);
+
+    console.log('Videos in this page: ' + videos.length);
 
     for (const element of videos) {
         console.log('Channel: ' + element.snippet.channelTitle);
@@ -99,6 +112,7 @@ async function listVideos(auth) {
         var alreadyInPlaylist = await isVideoAlreadyInPlaylist(auth, element.id);
 
         if (alreadyInPlaylist){
+            recurse = false;
             return;
         } else {
             addVideoToPlaylist(auth, element.id);
@@ -107,6 +121,10 @@ async function listVideos(auth) {
         console.log('');
         console.log('');
     };
+
+    if (!recurse){
+        listVideos(auth, nextPageToken);
+    }
 }
 
 async function isVideoAlreadyInPlaylist(auth, video) {
