@@ -1,8 +1,6 @@
 var fs = require('fs');
 var readline = require('readline');
 var { google } = require('googleapis');
-const { auth } = require('google-auth-library');
-const { youtube } = google.youtube('v3');
 var OAuth2 = google.auth.OAuth2;
 
 var SCOPES = ['https://www.googleapis.com/auth/youtube'];
@@ -20,7 +18,6 @@ fs.readFile('client_secret.json', function processClientSecrets(err, content) {
     }
 
     authorize(JSON.parse(content), listVideos);
-    //authorize(JSON.parse(content), getPlaylists);
 });
 
 function authorize(credentials, callback){
@@ -80,47 +77,9 @@ function storeToken(token) {
     });
 }
 
-function getChannel(auth) {
-    SERVICE.channels.list({
-        auth: auth,
-        part: 'snippet,contentDetails,statistics',
-        forUsername: 'ulnagar'
-    }, function(err, response) {
-        if (err) {
-            console.log('The API returned an error: ' + err);
-            return;
-        }
-        var channels = response.data.items;
-        if (channels.length == 0){
-            console.log('No channel found.');
-        } else {
-            console.log('This channel\'s ID is %s. Its title is \'%s\', and it has %s views.', channels[0].id, channels[0].snippet.title, channels[0].statistics.viewCount);
-        }
-    });
-}
-
-function getPlaylists(auth) {
-    SERVICE.playlists.list({
-        auth: auth,
-        part: 'id,snippet',
-        mine: true
-    }, function(err, response) {
-        if (err) {
-            console.log('The API returned an error: ' + err);
-            return;
-        }
-        var playlists = response.data.items;
-        if (playlists.length == 0){
-            console.log('No playlists found.');
-        } else {
-            for (const list in playlists){
-                console.log('Playlist found: ' + list.id);
-            }
-        }
-    });
-}
-
 async function listVideos(auth) {
+    PLAYLISTITEMS = [];
+
     var res = await SERVICE.search.list({
         auth: auth,
         part: 'id,snippet',
@@ -142,7 +101,7 @@ async function listVideos(auth) {
         if (alreadyInPlaylist){
             return;
         } else {
-            await addVideoToPlaylist(auth, element.id);
+            addVideoToPlaylist(auth, element.id);
         }
 
         console.log('');
@@ -161,7 +120,7 @@ async function isVideoAlreadyInPlaylist(auth, video) {
         PLAYLISTITEMS = res.data.items;
     }
 
-    if (items.some(item => item.snippet.resourceId.videoId == video.videoId)){
+    if (PLAYLISTITEMS.some(item => item.snippet.resourceId.videoId == video.videoId)){
         console.log('Video is already in playlist');
         return true;
     };
@@ -170,7 +129,7 @@ async function isVideoAlreadyInPlaylist(auth, video) {
     return false;
 }
 
-async function addVideoToPlaylist(auth, video) {
+function addVideoToPlaylist(auth, video) {
     console.log('Adding video to playlist');
 
     if(video.kind == 'youtube#video'){
