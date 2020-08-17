@@ -5,7 +5,8 @@
   "main": "index.js",
   "dependencies": {
     "google-auth-library": "^6.0.2",
-    "googleapis": "^52.1.0"
+    "googleapis": "^52.1.0",
+    "twitter": "^1.7.1"
   },
   "devDependencies": {},
   "scripts": {
